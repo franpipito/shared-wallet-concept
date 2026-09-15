@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx scripts/seed.ts",
+    "icons": "node scripts/generate-icons.mjs",
+    "test:sql": "./supabase/tests/run.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
