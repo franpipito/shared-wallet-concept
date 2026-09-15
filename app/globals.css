@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────────────────────────
+   Estética fintech latinoamericana: fondo claro, azul principal, amarillo
+   de acento, tipografía redondeada. Concepto no oficial — sin marca real. */
+@theme {
+  --color-brand-50: #e6f6fd;
+  --color-brand-100: #c2e9fa;
+  --color-brand-200: #8ed8f6;
+  --color-brand-300: #52c3f0;
+  --color-brand-400: #22aee9;
+  --color-brand-500: #009ee3;
+  --color-brand-600: #0086c4;
+  --color-brand-700: #006d9f;
+  --color-brand-800: #00557b;
+  --color-brand-900: #013d59;
+
+  --color-accent-200: #fff3bf;
+  --color-accent-300: #ffe785;
+  --color-accent-400: #ffd84d;
+  --color-accent-500: #ffc400;
+  --color-accent-600: #e0aa00;
+
+  --color-ink-900: #16232f;
+  --color-ink-700: #33475b;
+  --color-ink-500: #647a91;
+  --color-ink-300: #9fb1c4;
+  --color-ink-100: #dde5ee;
+  --color-ink-50: #eef3f8;
+
+  --color-canvas: #f1f5f9;
+  --color-surface: #ffffff;
+
+  --color-positive: #00a650;
+  --color-negative: #e04b4b;
+
+  --font-sans: var(--font-nunito), ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+
+  --shadow-card: 0 1px 2px rgb(22 35 47 / 0.04), 0 4px 16px rgb(22 35 47 / 0.06);
+  --shadow-float: 0 8px 30px rgb(22 35 47 / 0.14);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink-900);
+    font-family: var(--font-sans);
+    /* La demo se graba en un viewport de 390px: nada de scroll horizontal. */
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+  }
+
+  /* Los montos se leen mejor con cifras de ancho fijo al animarse. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Área segura del notch, para que instalada como PWA no quede pegada arriba. */
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 0.5rem);
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+  }
+}
