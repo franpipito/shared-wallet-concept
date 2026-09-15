@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/components/auth-provider";
+import { useToast } from "@/components/toast-provider";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,7 +28,17 @@ import { useLoader } from "@/lib/use-loader";
 
 export function HomeScreen({ profile }: { profile: Profile }) {
   const { signOut } = useAuth();
+  const toast = useToast();
   const [hidden, setHidden] = useState(false);
+
+  // Los accesos de una billetera real que este concepto no implementa. Se
+  // dejan porque dan contexto, pero explican qué son al tocarlos: un botón
+  // que no responde parece roto, sobre todo en un video.
+  const outOfScope = (label: string) =>
+    toast({
+      title: `"${label}" no es parte del concepto`,
+      detail: "Este prototipo se enfoca en las reservas compartidas",
+    });
   const { data: reserves, loading } = useLoader<Reserve[]>(
     () => getAdapter().getMyReserves(),
     [profile.id],
@@ -83,9 +94,9 @@ export function HomeScreen({ profile }: { profile: Profile }) {
         </div>
 
         <div className="mt-6 flex justify-between gap-2">
-          <QuickAction icon={ArrowDownToLine} label="Ingresar" />
-          <QuickAction icon={ArrowUpRight} label="Transferir" />
-          <QuickAction icon={QrCode} label="Pagar" />
+          <QuickAction icon={ArrowDownToLine} label="Ingresar" onClick={outOfScope} />
+          <QuickAction icon={ArrowUpRight} label="Transferir" onClick={outOfScope} />
+          <QuickAction icon={QrCode} label="Pagar" onClick={outOfScope} />
           <QuickAction icon={Users} label="Reservas" href="#reservas" highlight />
         </div>
       </div>
@@ -170,11 +181,13 @@ function QuickAction({
   icon: Icon,
   label,
   href,
+  onClick,
   highlight,
 }: {
   icon: typeof QrCode;
   label: string;
   href?: string;
+  onClick?: (label: string) => void;
   highlight?: boolean;
 }) {
   const content = (
@@ -190,14 +203,14 @@ function QuickAction({
     </>
   );
 
-  const className = "flex w-16 flex-col items-center gap-1.5";
+  const className =
+    "flex w-16 flex-col items-center gap-1.5 transition-transform active:scale-95";
   return href ? (
     <a href={href} className={className}>
       {content}
     </a>
   ) : (
-    // Accesos de la billetera que quedan fuera del alcance del concepto.
-    <button type="button" disabled className={`${className} cursor-default`} aria-disabled>
+    <button type="button" onClick={() => onClick?.(label)} className={className}>
       {content}
     </button>
   );

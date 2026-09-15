@@ -11,7 +11,8 @@
     "seed": "tsx scripts/seed.ts",
     "icons": "node scripts/generate-icons.mjs",
     "test:sql": "./supabase/tests/run.sh",
-    "check:rpc": "node scripts/check-rpc-contract.mjs"
+    "check:rpc": "node scripts/check-rpc-contract.mjs",
+    "og": "node scripts/generate-og.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

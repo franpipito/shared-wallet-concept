@@ -162,12 +162,27 @@ demo anterior y la rehace, así podés dejar todo prolijo justo antes de grabar.
 
 ## Grabar el video
 
-1. `npm run dev` y abrí **`/demo`** en pantalla completa.
-2. Los teléfonos se escalan solos para entrar enteros en la ventana, sin scroll.
-3. Tocá **Pagar** en uno de los dos → **Escanear** → **Pagar $…**
-4. El otro teléfono muestra el aviso, suma la fila al feed y actualiza el saldo,
-   sin recargar.
-5. **Reiniciar demo** deja todo como al principio para la próxima toma.
+`/demo` está pensado para grabarse de una sola toma con una herramienta tipo
+Loom: **una sola pestaña del navegador** con los dos teléfonos adentro, en vez
+de dos ventanas que haya que acomodar a mano.
+
+1. `npm run dev` y abrí **`/demo`** en pantalla completa (F11 / ⌃⌘F).
+2. Los teléfonos se escalan solos para entrar enteros: verificado sin scroll en
+   1440×900, 1728×1117 y 1920×1080. La burbuja de la cámara queda libre en
+   ambas esquinas inferiores en esas tres resoluciones.
+3. El recorrido que mejor cuenta la feature, en ~50 segundos:
+   - Los dos teléfonos arrancan en la home, cada uno con **su propio saldo**
+     (Juan $200.000, Sofi $300.000): ahí se ve que son dos sesiones distintas.
+   - Entrás a *Viaje a Bariloche* en los dos. Mismo saldo de reserva, mismo feed.
+   - En un teléfono: **Pagar → Escanear → Pagar $…**
+   - En el otro entra el aviso, la fila nueva aparece animada arriba del feed y
+     el saldo baja. Sin recargar, sin tocar nada.
+   - Cerrás con **Resumen → Cerrar reserva**, que muestra el reparto exacto del
+     sobrante antes de confirmar.
+4. **Reiniciar demo** deja todo como al principio para la próxima toma.
+
+> Los montos del escáner son aleatorios, así que no te comprometas de antemano
+> con una cifra en el guion: leé la que aparece.
 
 ---
 
@@ -235,9 +250,36 @@ reparto. Si tocás una función en `supabase/migrations/`, revisá también
 
 ## Deploy en Vercel
 
-Importá el repo y cargá las variables de entorno (`NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_ANON_KEY` y `NEXT_PUBLIC_DEMO_MODE`). No cargues la
-`SUPABASE_SERVICE_ROLE_KEY`: el seed corre desde tu máquina.
+**Para un link público que la gente toque desde LinkedIn, deployá SIN las
+variables de Supabase.** Importás el repo y listo. Cada visitante arranca en
+modo mock con su propio `localStorage`: una demo privada que no se puede
+romper ni ensuciar.
 
-`NEXT_PUBLIC_DEMO_MODE=false` esconde los botones de entrada rápida y desactiva
-el auto-login de `/demo`.
+Con Supabase conectado pasa lo contrario: todos comparten las cuentas de Juan y
+Sofi, y el primero que cierre la reserva le arruina la demo al siguiente. Ese
+modo tiene sentido para mostrar la arquitectura (RLS, RPC, Realtime), no para
+un link abierto.
+
+| Variable | Cuándo |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Siempre. Es el dominio del deploy, y hace que la imagen de preview salga con URL absoluta. En Vercel se completa sola desde `VERCEL_PROJECT_PRODUCTION_URL` si no la cargás. |
+| `NEXT_PUBLIC_SUPABASE_URL` / `..._ANON_KEY` | Solo si querés el backend real. |
+| `NEXT_PUBLIC_DEMO_MODE=false` | Esconde los botones de entrada rápida y desactiva el auto-login de `/demo`. |
+
+Nunca cargues `SUPABASE_SERVICE_ROLE_KEY` en Vercel: el seed corre desde tu
+máquina.
+
+### Imagen de preview social
+
+`public/og.png` (1200×630) se arma con capturas **reales** del producto,
+incluido el instante en que llega el pago al otro teléfono. Para regenerarla
+después de un cambio de diseño:
+
+```bash
+npm run build && npm run start     # en otra terminal
+BASE_URL=http://localhost:3000 npm run og
+```
+
+Después de deployar conviene pasar la URL por el
+[Post Inspector de LinkedIn](https://www.linkedin.com/post-inspector/), que
+fuerza a LinkedIn a releer las etiquetas si ya tenía una versión cacheada.

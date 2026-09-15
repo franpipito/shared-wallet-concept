@@ -10,10 +10,27 @@ const nunito = Nunito({
   weight: ["400", "600", "700", "800"],
 });
 
+const TITLE = "Reserva Compartida · Concepto de billetera virtual";
+const DESCRIPTION =
+  "Una reserva de dinero compartida entre varias personas: ambos depositan, ambos gastan, " +
+  "ven los movimientos del otro en tiempo real y al cerrarla el sobrante vuelve en proporción " +
+  "a lo que aportó cada uno. Prototipo con fines demostrativos.";
+
+/**
+ * Las URLs de Open Graph tienen que ser absolutas para que las previsualice
+ * LinkedIn. En Vercel, VERCEL_PROJECT_PRODUCTION_URL ya trae el dominio; si no,
+ * se puede fijar NEXT_PUBLIC_SITE_URL a mano.
+ */
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  title: "Billetera · Reserva Compartida",
-  description:
-    "Concepto de billetera virtual con reservas de dinero compartidas entre varias personas. Prototipo con fines demostrativos.",
+  metadataBase: new URL(siteUrl),
+  title: TITLE,
+  description: DESCRIPTION,
   applicationName: "Billetera",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Billetera" },
   icons: {
@@ -21,7 +38,28 @@ export const metadata: Metadata = {
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
   },
   formatDetection: { telephone: false },
-  robots: { index: false, follow: false },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    siteName: "Reserva Compartida",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: siteUrl,
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Dos celulares mostrando la misma reserva compartida; en uno llega el aviso del pago hecho desde el otro.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.png"],
+  },
 };
 
 export const viewport: Viewport = {
