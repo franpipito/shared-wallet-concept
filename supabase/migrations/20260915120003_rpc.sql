@@ -517,10 +517,11 @@ returns table (
   created_by   uuid,
   created_at   timestamptz,
   closed_at    timestamptz,
-  my_role      public.member_role,
-  my_status    public.member_status,
-  member_count bigint,
-  inviter_name text
+  my_role         public.member_role,
+  my_status       public.member_status,
+  member_count    bigint,
+  total_deposited numeric,
+  inviter_name    text
 )
 language plpgsql
 stable
@@ -541,6 +542,10 @@ begin
            r.starts_at, r.ends_at, r.status, r.created_by, r.created_at, r.closed_at,
            me.role, me.status,
            (select count(*) from reserve_members c
+             where c.reserve_id = r.id and c.status = 'accepted'),
+           -- Lo aportado entre todos: es contra esto que se mide el avance
+           -- hacia la meta. Usar el saldo haría RETROCEDER la barra al gastar.
+           (select coalesce(sum(c.total_deposited), 0) from reserve_members c
              where c.reserve_id = r.id and c.status = 'accepted'),
            (select ip.name from profiles ip where ip.id = me.invited_by)
     from reserve_members me

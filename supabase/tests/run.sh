@@ -10,24 +10,27 @@ set -euo pipefail
 PGBIN=${PGBIN:-/usr/lib/postgresql/16/bin}
 PGPORT=${PGPORT:-55432}
 PGDATA_DIR=${PGDATA_DIR:-/tmp/reserva-compartida-pgdata}
+# El socket vive dentro del datadir y no en /tmp: si no, una instancia vieja
+# en el mismo puerto deja un .lock y el arranque falla con "lock file exists".
+SOCKET_DIR="${PGDATA_DIR}-socket"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 
-psql_() { psql -h /tmp -p "$PGPORT" -U postgres "$@"; }
+psql_() { psql -h "$SOCKET_DIR" -p "$PGPORT" -U postgres "$@"; }
 
 cleanup() { "$PGBIN/pg_ctl" -D "$PGDATA_DIR" stop -m fast >/dev/null 2>&1 || true; }
 
 if ! "$PGBIN/pg_ctl" -D "$PGDATA_DIR" status >/dev/null 2>&1; then
   echo "▸ levantando Postgres efímero en :$PGPORT"
-  rm -rf "$PGDATA_DIR"; mkdir -p "$PGDATA_DIR"
+  rm -rf "$PGDATA_DIR" "$SOCKET_DIR"; mkdir -p "$PGDATA_DIR" "$SOCKET_DIR"
   # Postgres se niega a correr como root; si lo sos, delegamos en el usuario postgres.
   if [ "$(id -u)" = "0" ]; then
-    chown postgres:postgres "$PGDATA_DIR"; chmod 700 "$PGDATA_DIR"
+    chown postgres:postgres "$PGDATA_DIR" "$SOCKET_DIR"; chmod 700 "$PGDATA_DIR"
     su postgres -c "$PGBIN/initdb -D $PGDATA_DIR -U postgres --auth=trust" >/dev/null
-    su postgres -c "$PGBIN/pg_ctl -D $PGDATA_DIR -o '-p $PGPORT -k /tmp -c listen_addresses=' -l $PGDATA_DIR/server.log start" >/dev/null
+    su postgres -c "$PGBIN/pg_ctl -D $PGDATA_DIR -o '-p $PGPORT -k $SOCKET_DIR -c listen_addresses=' -l $PGDATA_DIR/server.log start" >/dev/null
   else
     "$PGBIN/initdb" -D "$PGDATA_DIR" -U postgres --auth=trust >/dev/null
-    "$PGBIN/pg_ctl" -D "$PGDATA_DIR" -o "-p $PGPORT -k /tmp -c listen_addresses=" -l "$PGDATA_DIR/server.log" start >/dev/null
+    "$PGBIN/pg_ctl" -D "$PGDATA_DIR" -o "-p $PGPORT -k $SOCKET_DIR -c listen_addresses=" -l "$PGDATA_DIR/server.log" start >/dev/null
   fi
   trap cleanup EXIT
   sleep 2
