@@ -15,7 +15,7 @@
 create type public.refund_share as (
   user_id         uuid,
   name            text,
-  alias           citext,
+  alias           text,
   avatar_url      text,
   total_deposited numeric,
   refund_amount   numeric
@@ -70,7 +70,7 @@ $$;
 -- ── Invitaciones ───────────────────────────────────────────────────────────
 
 create or replace function public.find_profile_by_alias(p_alias text)
-returns table (id uuid, name text, alias citext, avatar_url text)
+returns table (id uuid, name text, alias text, avatar_url text)
 language plpgsql
 stable
 security definer
@@ -85,7 +85,7 @@ begin
   return query
     select p.id, p.name, p.alias, p.avatar_url
     from profiles p
-    where p.alias = p_alias::citext
+    where p.alias = lower(trim(p_alias))
     limit 1;
 end;
 $$;
@@ -120,7 +120,7 @@ begin
     raise exception 'reserve_closed' using errcode = 'P0001', hint = 'La reserva ya está cerrada.';
   end if;
 
-  select p.id into v_target from profiles p where p.alias = p_alias::citext;
+  select p.id into v_target from profiles p where p.alias = lower(trim(p_alias));
   if v_target is null then
     raise exception 'alias_not_found' using errcode = 'P0001', hint = 'No encontramos a nadie con ese alias.';
   end if;
@@ -473,7 +473,7 @@ create or replace function public.get_reserve_members(p_reserve uuid)
 returns table (
   user_id         uuid,
   name            text,
-  alias           citext,
+  alias           text,
   avatar_url      text,
   role            public.member_role,
   status          public.member_status,

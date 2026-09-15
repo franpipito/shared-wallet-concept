@@ -6,8 +6,10 @@
 -- reparto proporcional del sobrante cierre exacto contra el saldo.
 -- ═══════════════════════════════════════════════════════════════════════════
 
-create extension if not exists pgcrypto;
-create extension if not exists citext;
+-- Sin extensiones a propósito: gen_random_uuid() es parte del core desde
+-- PostgreSQL 13, y el alias se compara en minúsculas con un índice único en
+-- lugar de citext. Así estas migraciones se pegan en el editor SQL de Supabase
+-- sin depender de en qué schema quedó instalada una extensión.
 
 -- ── Tipos ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +25,10 @@ create type public.movement_category as enum ('comida', 'alojamiento', 'transpor
 create table public.profiles (
   id             uuid primary key references auth.users (id) on delete cascade,
   name           text   not null check (length(trim(name)) between 1 and 60),
-  alias          citext not null unique check (alias ~ '^[a-z0-9][a-z0-9.]{2,39}$'),
+  -- Siempre en minúsculas (lo garantiza el check), así un unique común alcanza
+  -- para que la búsqueda por alias sea insensible a mayúsculas.
+  alias          text not null unique
+                 check (alias = lower(alias) and alias ~ '^[a-z0-9][a-z0-9.]{2,39}$'),
   avatar_url     text,
   wallet_balance numeric(14, 2) not null default 500000 check (wallet_balance >= 0),
   created_at     timestamptz not null default now()
@@ -32,7 +37,7 @@ create table public.profiles (
 comment on column public.profiles.wallet_balance is
   'Saldo simulado. Solo lo mueven las funciones RPC; el rol authenticated no puede escribirlo.';
 comment on column public.profiles.alias is
-  'Alias público estilo "juan.viaje.mp". citext => la búsqueda al invitar es case-insensitive.';
+  'Alias público estilo "juan.viaje.mp". Se guarda siempre en minúsculas.';
 
 -- ── shared_reserves ────────────────────────────────────────────────────────
 
@@ -120,7 +125,7 @@ security definer
 set search_path = public
 as $$
 declare
-  v_alias citext;
+  v_alias text;
   v_base  text;
 begin
   -- El alias llega desde el signup; si viene vacío o chocado, derivamos uno.
