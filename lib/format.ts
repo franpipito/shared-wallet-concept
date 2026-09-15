@@ -42,11 +42,6 @@ export function parseAmount(input: string): number | null {
 }
 
 const dayMonth = new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short" });
-const dayMonthYear = new Intl.DateTimeFormat("es-AR", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
 const timeOnly = new Intl.DateTimeFormat("es-AR", { hour: "2-digit", minute: "2-digit" });
 
 export function formatDateRange(startsAt: string, endsAt: string): string {
@@ -55,8 +50,21 @@ export function formatDateRange(startsAt: string, endsAt: string): string {
   return `${dayMonth.format(start)} — ${dayMonth.format(end)}`;
 }
 
-export function formatLongDate(date: string): string {
-  return dayMonthYear.format(new Date(`${date}T00:00:00`));
+const monthYear = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" });
+const dayOnly = new Intl.DateTimeFormat("es-AR", { day: "numeric" });
+
+/**
+ * Rango con año, compacto. "15 al 22 de septiembre de 2026" en vez de repetir
+ * el mes y el año dos veces, que a 390px envuelve en dos líneas.
+ */
+export function formatDateRangeLong(startsAt: string, endsAt: string): string {
+  const start = new Date(`${startsAt}T00:00:00`);
+  const end = new Date(`${endsAt}T00:00:00`);
+
+  if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+    return `${dayOnly.format(start)} al ${dayOnly.format(end)} de ${monthYear.format(end)}`;
+  }
+  return `${dayMonth.format(start)} — ${dayMonth.format(end)} de ${end.getFullYear()}`;
 }
 
 export function formatTime(iso: string): string {

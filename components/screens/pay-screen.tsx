@@ -230,7 +230,7 @@ function ScanStage({
       exit={{ opacity: 0 }}
       className="flex flex-1 flex-col items-center justify-center px-6 text-white"
     >
-      <div className="relative grid size-64 place-items-center rounded-3xl bg-ink-900/25">
+      <div className="relative grid size-64 place-items-center rounded-3xl bg-ink-900/55">
         {/* Esquinas del visor */}
         {[
           "left-0 top-0 border-l-4 border-t-4 rounded-tl-2xl",
@@ -241,7 +241,7 @@ function ScanStage({
           <span key={corner} className={`absolute size-12 border-accent-400 ${corner}`} />
         ))}
 
-        <QrCode className="size-24 text-white/25" />
+        <QrCode className="size-24 text-white/20" />
 
         {scanning ? (
           <motion.span

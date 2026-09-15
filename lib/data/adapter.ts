@@ -70,8 +70,15 @@ export interface DataAdapter {
  * una clave de storage distinta por slot, `/demo` puede tener a Juan y a Sofi
  * logueados a la vez en una sola pestaña.
  */
+let resolvedSlot: string | null = null;
+
 export function getSessionSlot(): string {
   if (typeof window === "undefined") return "default";
+  // Se resuelve UNA vez por ventana: al navegar, la URL pierde el ?s= y una
+  // segunda lectura devolvería "default", cambiando de sesión a mitad de uso.
+  if (resolvedSlot !== null) return resolvedSlot;
+
   const raw = new URLSearchParams(window.location.search).get("s");
-  return raw && /^[a-z0-9_-]{1,16}$/i.test(raw) ? raw.toLowerCase() : "default";
+  resolvedSlot = raw && /^[a-z0-9_-]{1,16}$/i.test(raw) ? raw.toLowerCase() : "default";
+  return resolvedSlot;
 }

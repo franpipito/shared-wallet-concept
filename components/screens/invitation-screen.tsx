@@ -12,7 +12,7 @@ import { ConceptFooter, Screen, ScreenHeader } from "@/components/ui/screen";
 import { useToast } from "@/components/toast-provider";
 import { getAdapter } from "@/lib/data";
 import { messageFor } from "@/lib/errors";
-import { formatLongDate, formatMoneyShort } from "@/lib/format";
+import { formatDateRangeLong, formatMoneyShort } from "@/lib/format";
 import type { Reserve, ReserveMember } from "@/lib/types";
 import { useLoader } from "@/lib/use-loader";
 
@@ -87,7 +87,7 @@ export function InvitationScreen({ reserveId }: { reserveId: string }) {
 
             <div className="flex flex-col gap-4 p-5">
               <Row icon={CalendarDays} label="Fechas">
-                {formatLongDate(reserve.startsAt)} — {formatLongDate(reserve.endsAt)}
+                {formatDateRangeLong(reserve.startsAt, reserve.endsAt)}
               </Row>
               <Row icon={Target} label="Meta">
                 {formatMoneyShort(reserve.goalAmount)}

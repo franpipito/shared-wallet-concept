@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "seed": "tsx scripts/seed.ts",
     "icons": "node scripts/generate-icons.mjs",
-    "test:sql": "./supabase/tests/run.sh"
+    "test:sql": "./supabase/tests/run.sh",
+    "check:rpc": "node scripts/check-rpc-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
@@ -19,7 +20,8 @@
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

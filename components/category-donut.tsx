@@ -2,7 +2,7 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { CATEGORY_META } from "@/lib/categories";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, formatMoneyShort } from "@/lib/format";
 import type { MovementCategory } from "@/lib/types";
 
 export interface CategorySlice {
@@ -34,7 +34,7 @@ export function CategoryDonut({
               data={slices}
               dataKey="total"
               nameKey="category"
-              innerRadius="62%"
+              innerRadius="68%"
               outerRadius="94%"
               paddingAngle={2}
               stroke="none"
@@ -50,13 +50,14 @@ export function CategoryDonut({
           </PieChart>
         </ResponsiveContainer>
 
-        {/* El total va en el centro del anillo, no como leyenda aparte. */}
+        {/* El total va en el centro del anillo, no como leyenda aparte. Sin
+            centavos: el importe completo no entra en el hueco a 390px. */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[11px] font-bold uppercase tracking-wide text-ink-300">
+          <span className="text-[10px] font-bold uppercase tracking-wide text-ink-300">
             Gastado
           </span>
-          <span className="tabular text-xl font-extrabold text-ink-900">
-            {formatMoney(total)}
+          <span className="tabular text-lg font-extrabold text-ink-900">
+            {formatMoneyShort(total)}
           </span>
         </div>
       </div>
